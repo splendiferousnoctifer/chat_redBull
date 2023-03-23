@@ -36,8 +36,8 @@ async def startup_event():
 
 
     pinecone.init(
-        api_key="867407a2-4b3d-4a5f-9d5c-516fa4d87c65",  # find at app.pinecone.io
-        environment="us-central1-gcp",  # find at app.pinecone.io
+        api_key=os.environ.get('PINECONE_API'),  # find at app.pinecone.io
+        environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
     vectorstore = Pinecone.from_existing_index(index_name="voestchat", embedding=OpenAIEmbeddings())

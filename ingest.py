@@ -15,16 +15,16 @@ os.environ.get('OPENAI_API_KEY')
 def ingest_docs():
     pinecone.init(
         api_key=os.environ.get('PINECONE_API'),  # find at app.pinecone.io
-        environment="us-central1-gcp",  # find at app.pinecone.io
+        environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
-    index_name = "voestchat"
+    index_name = "steocklchat"
 
     """Get documents from web pages."""
     
     print("Loading documents...")
-    loader = DirectoryLoader('www.voestalpine.com/', glob="**/*.html")
-    #loader = DirectoryLoader('www.stoeckl.ai/', glob="**/*.html")
+    #loader = DirectoryLoader('www.voestalpine.com/', glob="**/*.html")
+    loader = DirectoryLoader('www.stoeckl.ai/', glob="**/*.html")
 
 
     raw_documents = loader.load()

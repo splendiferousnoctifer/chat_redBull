@@ -137,7 +137,8 @@
         window.onload = function () {
             console.log("document loaded");
             //var endpoint = "ws://localhost:9000/chat";
-            var endpoint = "ws://10.235.244.137:9000/chat";
+            //var endpoint = "ws://10.235.244.137:9000/chat";
+            var endpoint = "ws://10.149.186.69:9000/chat";
             //var endpoint = "wss://chat-langchain-stoeckl.onrender.com/chat";
             var ws = null;
             try {
@@ -212,7 +213,7 @@
                         replaceLinksServerMessages(p);
 
                         var header = document.getElementById('header');
-                        header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                        header.innerHTML = "Ask a question.";
                         var button = document.getElementById('send');
                         button.innerHTML = "Send";
                         button.disabled = false;
@@ -222,7 +223,7 @@
 
                     } else if (data.type === "error") {
                         var header = document.getElementById('header');
-                        header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                        header.innerHTML = "Ask a question.";
                         var button = document.getElementById('send');
                         button.innerHTML = "Send";
                         button.disabled = false;
@@ -252,6 +253,7 @@
             };
             //}
 
+            // a quick and dirty hash function 
             function computeHash(txt) {
                 return txt.split("").reduce((a, b) => {
                     a = ((a << 5) - a) + b.charCodeAt(0);
@@ -265,16 +267,27 @@
 
                 if (p) {
                     // Log the existing text content
+                    console.log("original text: " + p.textContent);
 
                     // new elements 
                     var newElements = [];
 
                     // Replace regular URLs with links
                     // regex for http or https  URLs
-                    var urlPattern = new RegExp("(https?://www\\.[^\\s]+)", "gi");
-                    p.innerHTML = p.textContent.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+                    var urlPattern = new RegExp("(https?://www\\.[^\\s,]+)", "gi");
+                    const links = p.textContent.match(urlPattern);
 
-                    // Todo: create a link and add it to newElements
+                    // create a link and add it to newElements
+                    if (links) {
+                        for (var j = 0; j < links.length; j++) {
+                            console.log("found link: " + links[j])
+                            var a = document.createElement('a');
+                            a.href = links[j];
+                            a.target = "_blank";
+                            a.innerHTML = links[j];
+                            newElements.push(a);
+                        }
+                    }
 
 
                     // find links that start with video://
@@ -311,7 +324,7 @@
                             video.id = hash;
                             //video.width = "*";
                             video.controls = true;
-                            video.autoplay = true;
+                            video.autoplay = j == 0 ? true : false;
                             // create a source element
                             video.src = videoLinks[j].replace("video://", "https://")
                             {
@@ -327,8 +340,7 @@
                                     video.remove();
                                 };
                             }
-                            // Todo: check if video exists and if not remove the video element
-                            //p.appendChild(video)
+
                             newElements.push(video);
                         }
                     }
@@ -346,24 +358,62 @@
                             const hash = computeHash(imageLinks[j]);
                             console.log("hash: " + hash);
                             // replace the image link with an image tag
-                            p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
+                            //p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
 
                             // Todo: create an image element and add it to newElements
+                            // create an image element
+                            const img = document.createElement("img");
+                            img.id = hash;
+                            //img.width = "*";
+                            img.src = imageLinks[j].replace("image://", "https://");
+
+                            // if the image loading fails, remove the image element
+                            img.onerror = function () {
+                                console.log(`image loading for ${img.src} failed`);
+                                img.remove();
+                            };
+                            newElements.push(img);
                         }
                     }
 
                     // cut the part of the text starting with  "SOURCES:"
                     p.innerHTML = p.textContent.split("SOURCES:")[0];
 
-                    // Add the new elements
-                    for (var j = 0; j < newElements.length; j++) {
-                        p.appendChild(newElements[j]);
+                    if (newElements.length > 0) {
+                        // add a line break
+                        p.appendChild(document.createElement("br"));
+
+                        var sources_div = document.createElement('div');
+                        sources_div.className = 'sources';
+                        sources_div.style = 'display: grid;';
+                        p.appendChild(sources_div);
+
+                        // Add the new elements
+                        for (var j = 0; j < newElements.length; j++) {
+                            sources_div.appendChild(newElements[j]);
+                            //if (j != newElements.length - 1)
+                            //    sources_div.appendChild(document.createElement("br"));
+                        }
                     }
                 }
             }
 
 
-            // replaceLinksServerMessages();
+            // DEBUG only:
+            // replace links in static server messages
+            var messages = document.getElementById('messages');
+            // iterate over all messages children
+            for (var i = 0; i < messages.children.length; i++) {
+                // get the last child of the message
+                const ps = messages.children[i].children;
+
+                // iterate over all children
+                for (var j = 0; j < ps.length; j++) {
+                    // get the last child of the message
+                    const p = ps[j];
+                    replaceLinksServerMessages(p);
+                }
+            }
 
 
 
@@ -403,7 +453,50 @@
                     href="https://www.redbullcontentpool.com/">RedBull Content Pool</a>. </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
-
+                <!-- some static tests -->
+                <div class="client-message">
+                    <p><strong>You: </strong>Hello I am a fan of Lindsey Vonn.</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <p><strong>Chatbot: </strong>Hello Lindsey's fan ;). She is a former professional skier. Here is
+                            some content about her. SOURCES:
+                            https://www.redbull.com/int-en/athlete/lindsey-vonn,https://www.redbull.com/int-en/mind-set-win-podcast-lindsey-vonn
+                        </p>
+                    </div>
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Do you have an interview with her about the downhill race at Streif?</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <strong>Chatbot: </strong> Yes, sure. Enjoy these videos:SOURCES:
+                        video://cs.liiift.io/v1/RBCP/pd/2/DV/EP/HW/QE/11/14/FO-2DVEPHWQE1114.mp4/a:h/FO-2DVEPHWQE1114_proxy_hd_720.mp4?ht=exp=1710724463+hmac=d9bf146aff27d98f6bed2b87dda30ee5&time=441,
+                        video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825&time=7825,
+                        video://cs.liiift.io/v1/RBCP/' 
+                    </div> <!-- last one is broken -->
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Do you have a picture of her?</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <p><strong>Chatbot: </strong> Yes, of
+                            course!SOURCES:image://img.liiift.io/v1/RBCP/FO-2DVKWF5CE1111.jpg/a:h/im/FO-2DVKWF5CE1111_image_proxy_verylarge.jpg?ht=exp=1708081875+hmac=78a5605b229ec7303691e031bfc6f726
+                        </p>
+                    </div>
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Next is a mixture of things?</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <strong>Chatbot: </strong> Yes, sure. Enjoy these videos:SOURCES:
+                        image://img.liiift.io/v1/RBCP/FO-2EAY6MPAA1511.jpg/a:h/im/FO-2EAY6MPAA1511_image_proxy_verylarge.jpg?ht=exp=1710706393+hmac=56a8a8ec3e884ac285e1e311ffe18151
+                        video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825&time=7825,
+                        video://cs.liiift.io/v1/RBCP/, https://www.redbull.com/int-en/athlete/lindsey-vonn,
+                    </div> <!-- second-last one is broken -->
+                </div>
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
                 <textarea rows="3" class="form-control" placeholder="Write your question" id="messageText"></textarea>

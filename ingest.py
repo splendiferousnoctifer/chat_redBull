@@ -1,4 +1,5 @@
 """Load html from files, clean up, split, ingest into Weaviate."""
+import math
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -35,7 +36,7 @@ def ingest_docs():
         environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
-    index_name = "redbullchat"
+    index_name = "redbullchat2"
 
     """Get documents from web pages."""
     
@@ -50,18 +51,20 @@ def ingest_docs():
 
     for i in range(len(raw_documents)):
         source = raw_documents[i].metadata['source']
-        pattern = r'CP-[SV]-\d{3,6}'
+        pattern = r'CP-[SVT]-\d{3,6}'
         matches = re.findall(pattern, source)
+
         if (matches[0][3] == 'V'):   
             pattern = r"(\d{0,9})\.txt"
             match = re.search(pattern, source)
-            raw_documents[i].metadata['source'] = (return_url("https://editor.redbullcontentpool.com/api/v1/assets?sort=-firstPublishedAt&include=offers.licenseOffer&format=contentExpo&filter%5bassetModel%5d=video&filter%5bchannel%5d=communication&filter%5bproductId%5d=" + str(matches[0])) + "&time=" + match[0][:-4]).replace('https:', 'video:')
+            if match[0]:
+                raw_documents[i].metadata['source'] = (return_url("https://editor.redbullcontentpool.com/api/v1/assets?sort=-firstPublishedAt&include=offers.licenseOffer&format=contentExpo&filter%5bassetModel%5d=video&filter%5bchannel%5d=communication&filter%5bproductId%5d=" + str(matches[0])) + "&time=" + str(int((int(match[0][:-4])/25)))).replace('https:', 'video:')
         elif(matches[0][3] == 'P'):   
-            pattern = r"(\d{0,9})\.txt"
-            match = re.search(pattern, source)
             raw_documents[i].metadata['source'] = return_url("https://editor.redbullcontentpool.com/api/v1/assets?sort=-firstPublishedAt&include=offers.licenseOffer&format=contentExpo&filter%5bassetModel%5d=photo&filter%5bchannel%5d=communication&filter%5bproductId%5d=" + str(matches[0])).replace('https:', 'image:')
-        else:
+        elif(matches[0][3] == 'S'):   
             raw_documents[i].metadata['source'] = "https://www.redbullcontentpool.com/international/" + str(matches[0])
+        else:
+            raw_documents[i].metadata['source'] = raw_documents[i].metadata['source']
 
 
     #region embedding & save    

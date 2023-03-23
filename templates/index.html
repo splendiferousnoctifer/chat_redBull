@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Chat Your Data</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.png') }}">
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-    <meta property="og:description" content="A chat-GPT powered bot indexed on the stoeckl.ai docs that answers questions.">
+    <meta property="og:description"
+        content="A chat-GPT powered bot indexed on the stoeckl.ai docs that answers questions.">
     <meta property="og:site-name" content="Stoeckl.ai Help Bot">
     <script type="text/javascript" src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 
@@ -18,27 +20,32 @@
             width: 50%;
             margin: 50px auto;
         }
+
         .card-body {
             background-color: #333;
             color: #fff;
             border-radius: 10px;
         }
+
         .server-message {
             background-color: #444;
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
         }
+
         .client-message {
             background-color: #555;
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
         }
+
         .form-inline {
             display: flex;
             justify-content: space-between;
         }
+
         .form-control {
             width: 80%;
             color: #000000;
@@ -47,6 +54,7 @@
             padding: 10px;
             margin-right: 10px;
         }
+
         #send {
             background-color: #4C4CFF;
             color: #fff;
@@ -54,150 +62,237 @@
             border-radius: 5px;
             padding: 10px 20px;
         }
+
         .form-message {
-          margin-top: 10px;
+            margin-top: 10px;
         }
     </style>
-    
+
     <script>
-        var endpoint = "ws://localhost:9000/chat";
-        //var endpoint = "wss://chat-langchain-stoeckl.onrender.com/chat";
-        var ws = new WebSocket(endpoint);
-        var converter = new showdown.Converter();	
+        // execute when the document is fully loaded+
+        window.onload = function () {
+            console.log("document loaded");
+            var endpoint = "ws://localhost:9000/chat";
+            //var endpoint = "wss://chat-langchain-stoeckl.onrender.com/chat";
+            var ws = null;
+            try {
+                ws = new WebSocket(endpoint);
+            } catch (e) {
+                console.log("could not connect to websocket!");
+                console.log(e);
+            }
 
 
-        function isURL(str) {
-            // regular expression to match URLs
-            var pattern = new RegExp("(www\\.[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\./?%&=]*)?)", "gi");
-            return pattern.test(str);
-        }
+            function isURL(str) {
+                // regular expression to match URLs
+                var pattern = new RegExp("(www\\.[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\./?%&=]*)?)", "gi");
+                return pattern.test(str);
+            }
 
-        function addLinks(str) {
-            // regular expression to match URLs
-            var pattern = new RegExp("(www\\.[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\./?%&=]*)?)", "gi");
-            return str.replace(pattern, function(url) {
-                // wrap URLs in <a> tags
-                return "<a href='" + url + "' target='_blank'>" + url + "</a>";
-            });
-        }
+            function addLinks(str) {
+                // regular expression to match URLs
+                var pattern = new RegExp("(www\\.[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\./?%&=]*)?)", "gi");
+                return str.replace(pattern, function (url) {
+                    // wrap URLs in <a> tags
+                    return "<a href='" + url + "' target='_blank'>" + url + "</a>";
+                });
+            }
 
-        // Receive message from server word by word. Display the words as they are received.
-        ws.onmessage = function (event) {
-            var messages = document.getElementById('messages');
-            var data = JSON.parse(event.data);
-            if (data.sender === "bot") {
-                
-                if (data.type === "start") {
-                    var header = document.getElementById('header');
-                    header.innerHTML = "Computing answer...";
-                    var div = document.createElement('div');
-                    div.className = 'server-message';
-                    var p = document.createElement('p');
-                    p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
-                    div.appendChild(p);
-                    messages.appendChild(div);
-                } else if (data.type === "stream") {
-                    var header = document.getElementById('header');
-                    header.innerHTML = "Chatbot is typing...";
-                    var p = messages.lastChild.lastChild;
+            //if (ws && ws.readyState === WebSocket.OPEN) {
+                // Receive message from server word by word. Display the words as they are received.
+                ws.onmessage = function (event) {
+                    var messages = document.getElementById('messages');
+                    var data = JSON.parse(event.data);
+                    if (data.sender === "bot") {
+
+                        if (data.type === "start") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Computing answer...";
+                            var div = document.createElement('div');
+                            div.className = 'server-message';
+                            var p = document.createElement('p');
+                            p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
+                            div.appendChild(p);
+                            messages.appendChild(div);
+                        } else if (data.type === "stream") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Chatbot is typing...";
+                            var p = messages.lastChild.lastChild;
 
 
-                    if (data.message === "\n") {
-                        p.innerHTML += "<br>";
+                            if (data.message === "\n") {
+                                p.innerHTML += "<br>";
+                            } else {
+                                p.innerHTML += data.message;
+                            }
+                        } else if (data.type === "info") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = data.message;
+
+                        } else if (data.type === "end") {
+                            //var p = messages.lastChild.lastChild;
+                            //p.innerHTML = converter.makeHtml(p.innerHTML)
+
+
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                            var button = document.getElementById('send');
+                            button.innerHTML = "Send";
+                            button.disabled = false;
+
+                            replaceLinksServerMessages();
+
+
+                        } else if (data.type === "error") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                            var button = document.getElementById('send');
+                            button.innerHTML = "Send";
+                            button.disabled = false;
+                            var p = messages.lastChild.lastChild;
+                            p.innerHTML += data.message;
+                        }
                     } else {
+                        var div = document.createElement('div');
+                        div.className = 'client-message';
+                        var p = document.createElement('p');
+                        p.innerHTML = "<strong>" + "You: " + "</strong>";
                         p.innerHTML += data.message;
+                        div.appendChild(p);
+                        messages.appendChild(div);
                     }
-                } else if (data.type === "info") {
-                    var header = document.getElementById('header');
-                    header.innerHTML = data.message;
+                    // Scroll to the bottom of the chat
+                    messages.scrollTop = messages.scrollHeight;
 
-                } else if (data.type === "end") {
-                    //var p = messages.lastChild.lastChild;
-                    //p.innerHTML = converter.makeHtml(p.innerHTML)
+                    ///*
+                };
+            //}
 
-
-                    var header = document.getElementById('header');
-                    header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
-                    var button = document.getElementById('send');
-                    button.innerHTML = "Send";
-                    button.disabled = false;
-
-                } else if (data.type === "error") {
-                    var header = document.getElementById('header');
-                    header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
-                    var button = document.getElementById('send');
-                    button.innerHTML = "Send";
-                    button.disabled = false;
-                    var p = messages.lastChild.lastChild;
-                    p.innerHTML += data.message;
-                }
-            } else {
-                var div = document.createElement('div');
-                div.className = 'client-message';
-                var p = document.createElement('p');
-                p.innerHTML = "<strong>" + "You: " + "</strong>";
-                p.innerHTML += data.message;
-                div.appendChild(p);
-                messages.appendChild(div);
+            function computeHash(txt) {
+                return txt.split("").reduce((a, b) => {
+                    a = ((a << 5) - a) + b.charCodeAt(0);
+                    return a & a;
+                }, 0);
             }
-            // Scroll to the bottom of the chat
-            messages.scrollTop = messages.scrollHeight;
 
-            ///*
+            function replaceLinksServerMessages() {
+                var serverMessages = document.querySelectorAll(".server-message");
+                if (serverMessages) {
+                    for (var i = 0; i < serverMessages.length; i++) {
+                        var p = serverMessages[i].querySelector("p");
+                        if (p) {
+                            // Log the existing text content
 
-            var serverMessages = document.querySelectorAll(".server-message");
-            if (serverMessages) {
-                for (var i = 0; i < serverMessages.length; i++) {
-                    var p = serverMessages[i].querySelector("p");
-                    if (p) {     
-                        // Log the existing text content
-                
-                        // Replace URLs with links
-                        var urlPattern = new RegExp("(www\\.[^\\s]+)", "gi");
-                        p.innerHTML = p.textContent.replace(urlPattern, '<a href="http://$1" target="_blank">$1</a>');
-                
-                
-                        var sourcesIndex = p.textContent.indexOf("SOURCES:");
-                        if (sourcesIndex > -1) {
-                            p.innerHTML = p.innerHTML.slice(0, sourcesIndex) + "<br><br>" + p.innerHTML.slice(sourcesIndex);
-                        } 
-                        
-                        p.innerHTML = p.innerHTML.replace('index.html', '');
+                            // Replace regular URLs with links
+                            // regex for http or https  URLs
+                            var urlPattern = new RegExp("(https?://www\\.[^\\s]+)", "gi");
+                            p.innerHTML = p.textContent.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 
-                        // Log the modified text content
+                            // find links that start with video://
+                            var videoPattern = new RegExp("(video://[^\\s]+)", "gi");
+                            // find all positions of the video links
+                            var videoLinks = p.textContent.match(videoPattern);
+                            // iterate over them
+                            if (videoLinks) {
+                                for (var j = 0; j < 1; j++) {
+                                    console.log("found video link: " + videoLinks[j])
+
+                                    // parse the query string
+                                    const url = new URL(videoLinks[j]);
+                                    // try to get the time parameter
+                                    // if it is not set, the video will start at the beginning
+                                    const time = url.searchParams.get("time") || 0;
+
+
+                                    // compute a hash for the video link
+                                    const hash = computeHash(videoLinks[j]);
+                                    console.log("hash: " + hash);
+                                    // replace the video link with a video tag
+                                    p.innerHTML = p.textContent.replace(videoLinks[j], `<video id="${hash}" width="*" controls autoplay><source src="${videoLinks[j].replace("video://", "https://")}" type="video/mp4"></video>`);
+
+                                    {
+                                        const video = document.getElementById(hash);
+                                        video.onplay = function () {
+                                            console.log("video playing");
+                                            video.currentTime = time;
+                                        };
+                                    }
+                                }
+                            }
+
+                            // find links that start with image://
+                            var imagePattern = new RegExp("(image://[^\\s]+)", "gi");
+                            // find all positions of the image links
+                            var imageLinks = p.textContent.match(imagePattern);
+                            // iterate over them
+                            if (imageLinks) {
+                                for (var j = 0; j < 1; j++) {
+                                    console.log("found image link: " + imageLinks[j])
+
+                                    // compute a hash for the image link
+                                    const hash = computeHash(imageLinks[j]);
+                                    console.log("hash: " + hash);
+                                    // replace the image link with an image tag
+                                    p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
+                                }
+                            }
+
+                            /*
+                            var sourcesIndex = p.textContent.indexOf("SOURCES:");
+                            if (sourcesIndex > -1) {
+                                p.innerHTML = p.innerHTML.slice(0, sourcesIndex) + "<br><br>" + p.innerHTML.slice(sourcesIndex);
+                            }
+                            */
+
+                            // p.innerHTML = p.innerHTML.replace('index.html', '');
+
+                            // Log the modified text content
+                        }
                     }
                 }
+                //*/
             }
-            //*/
-        };
-        // Send message to server
-        function sendMessage(event) {
-            event.preventDefault();
-            var message = document.getElementById('messageText').value;
-            if (message === "") {
-                return;
-            }
-            ws.send(message);
-            document.getElementById('messageText').value = "";
+            replaceLinksServerMessages();
 
-            // Turn the button into a loading button
+
+
+
+            // Send message to server
+            function sendMessage(event) {
+                event.preventDefault();
+                var message = document.getElementById('messageText').value;
+                if (message === "") {
+                    return;
+                }
+                ws.send(message);
+                document.getElementById('messageText').value = "";
+
+                // Turn the button into a loading button
+                var button = document.getElementById('send');
+                button.innerHTML = "Loading...";
+                button.disabled = true;
+            }
+
+            // Send message when the user clicks the send button
             var button = document.getElementById('send');
-            button.innerHTML = "Loading...";
-            button.disabled = true;
+            button.addEventListener('click', sendMessage);
+            button.addEventListener("onsubmit", sendMessage);
+
+
+
         }
-
-        
-
-
     </script>
 </head>
+
 <body class="bg-white">
     <div class="chat-body card">
         <div class="card-body p-5">
             <h4 class="card-title text-center text-xl font-medium"> Chat Your Data </h4>
-            <p class="card-text text-center text-sm" id="header"> Ask a question about <a href="https://www.stoekl.ai">stoeckl.ai</a>. </p>
+            <p class="card-text text-center text-sm" id="header"> Ask a question about <a
+                    href="https://www.stoekl.ai">stoeckl.ai</a>. </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
+        
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
                 <input type="text" class="form-control" placeholder="Write your question" id="messageText">
@@ -207,6 +302,10 @@
     </div>
 </body>
 <footer class="footer-text">
-    <p><center><span class="grey-text">Made by Samuel Zühlke. See </span><a href="https://github.com/splendiferousnoctifer/chat-langchain">the code.</a></center></p>
+    <p>
+        <center><span class="grey-text">Made by Samuel Zühlke. See </span><a
+                href="https://github.com/splendiferousnoctifer/chat-langchain">the code.</a></center>
+    </p>
 </footer>
+
 </html>

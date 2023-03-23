@@ -32,6 +32,9 @@
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
+            width: 100%;
+            word-break: break-all;
+            margin-right: 60px;
         }
 
         .client-message {
@@ -39,6 +42,8 @@
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
+            width: 100%;
+            margin-left: 60px;
         }
 
         .form-inline {
@@ -66,6 +71,65 @@
         .form-message {
             margin-top: 10px;
         }
+
+        .chatbot-img{
+            height: 50px;
+        }
+
+        .client-img{
+            height: 40px;
+            margin: 10px 5px 0;
+        }
+
+        .server-message-container{
+            display: flex;
+            flex-direction: row;
+        }
+
+        .client-message-container{
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .jumping-dots-loader span {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 100%;
+            background-color: white;
+            margin: 0 2px 0 2px;
+        }
+
+        .jumping-dots-loader span:nth-child(1) {
+            animation: bounce 1s ease-in-out infinite
+        }
+
+        .jumping-dots-loader span:nth-child(2) {
+            animation: bounce 1s ease-in-out 0.33s infinite
+        }
+
+        .jumping-dots-loader span:nth-child(3) {
+            animation: bounce 1s ease-in-out 0.66s infinite
+        }
+
+        @keyframes bounce {
+            0%,
+            75%,
+            100% {
+                -webkit-transform: translateY(0);
+                -ms-transform: translateY(0);
+                -o-transform: translateY(0);
+                transform: translateY(0)
+            }
+            
+            25% {
+                -webkit-transform: translateY(-5px);
+                -ms-transform: translateY(-5px);
+                -o-transform: translateY(-5px);
+                transform: translateY(-5px)
+            }
+        }
+        
     </style>
 
     <script>
@@ -106,29 +170,39 @@
                 var data = JSON.parse(event.data);
                 if (data.sender === "bot") {
 
-                    if (data.type === "start") {
-                        var header = document.getElementById('header');
-                        header.innerHTML = "Computing answer...";
-                        var div = document.createElement('div');
-                        div.className = 'server-message';
-                        var p = document.createElement('p');
-                        p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
-                        div.appendChild(p);
-                        messages.appendChild(div);
-                    } else if (data.type === "stream") {
-                        var header = document.getElementById('header');
-                        header.innerHTML = "Chatbot is typing...";
-                        var p = messages.lastChild.lastChild;
-
-
-                        if (data.message === "\n") {
-                            p.innerHTML += "<br>";
-                        } else {
-                            p.innerHTML += data.message;
-                        }
-                    } else if (data.type === "info") {
-                        var header = document.getElementById('header');
-                        header.innerHTML = data.message;
+                        if (data.type === "start") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Computing answer...";
+                            var container = document.createElement('div');
+                    container.className = 'server-message-container';
+                    var img = document.createElement('img');
+                    img.className = 'chatbot-img';
+                    img.src = "{{ url_for('static', path='/bull.png') }}";
+                    img.style.width = "70px";
+                    var div = document.createElement('div');
+                            div.className = 'server-message';
+                            var dots_container = document.createElement('div');
+                            dots_container.className = "jumping-dots-loader";
+                    dots_container.innerHTML = "<span></span><span></span><span></span>";
+                   
+                    div.appendChild(dots_container);
+                    container.appendChild(img)
+                            container.appendChild(div)
+                            messages.appendChild(container);
+                        } else if (data.type === "stream") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Chatbot is typing...";
+                            var p = messages.lastChild.lastChild;
+                    removeItem = document.getElementsByClassName("jumping-dots-loader");
+                    removeItem[0]?.remove();
+                            if (data.message === "\n") {
+                                p.innerHTML += "<br>";
+                            } else {
+                                p.innerHTML += data.message;
+                            }
+                        } else if (data.type === "info") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = data.message;
 
                     } else if (data.type === "end") {
                         //var p = messages.lastChild.lastChild;
@@ -144,26 +218,33 @@
                         replaceLinksServerMessages();
 
 
-                    } else if (data.type === "error") {
-                        var header = document.getElementById('header');
-                        header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
-                        var button = document.getElementById('send');
-                        button.innerHTML = "Send";
-                        button.disabled = false;
-                        var p = messages.lastChild.lastChild;
-                        p.innerHTML += data.message;
+                        } else if (data.type === "error") {
+                            var header = document.getElementById('header');
+                            header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                            var button = document.getElementById('send');
+                            button.innerHTML = "Send";
+                            button.disabled = false;
+                            var p = messages.lastChild.lastChild;
+                            p.innerHTML += data.message;
+                        }
+                    } else {
+                        var container = document.createElement('div');
+                container.className = 'client-message-container';
+                var img = document.createElement('img');
+                img.className = 'client-img';
+                img.src = "{{ url_for('static', path='/client.png') }}";
+                img.style.width = "55px";
+                var div = document.createElement('div');
+                        div.className = 'client-message';
+                        var p = document.createElement('p');
+                                p.innerHTML += data.message;
+                        div.appendChild(p);
+                        container.appendChild(div)
+                container.appendChild(img)
+                messages.appendChild(container);
                     }
-                } else {
-                    var div = document.createElement('div');
-                    div.className = 'client-message';
-                    var p = document.createElement('p');
-                    p.innerHTML = "<strong>" + "You: " + "</strong>";
-                    p.innerHTML += data.message;
-                    div.appendChild(p);
-                    messages.appendChild(div);
-                }
-                // Scroll to the bottom of the chat
-                messages.scrollTop = messages.scrollHeight;
+                    // Scroll to the bottom of the chat
+                    messages.scrollTop = messages.scrollHeight;
 
                 ///*
             };
@@ -289,15 +370,15 @@
 <body class="bg-white">
     <div class="chat-body card">
         <div class="card-body p-5">
-            <h4 class="card-title text-center text-xl font-medium"> Chat Your Data </h4>
+            <img class="logo" src="{{ url_for('static', path='/logo.png') }}">
             <p class="card-text text-center text-sm" id="header"> Ask a question about <a
-                    href="https://www.stoekl.ai">stoeckl.ai</a>. </p>
+                    href="https://www.redbullcontentpool.com/">RedBull Content Pool</a>. </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
 
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
-                <input type="text" class="form-control" placeholder="Write your question" id="messageText">
+                <textarea rows="3" class="form-control" placeholder="Write your question" id="messageText"></textarea>
                 <button id="send" type="submit" class="btn btn-primary">Send</button>
             </form>
         </div>

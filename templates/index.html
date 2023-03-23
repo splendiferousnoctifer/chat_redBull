@@ -72,7 +72,8 @@
         // execute when the document is fully loaded+
         window.onload = function () {
             console.log("document loaded");
-            var endpoint = "ws://localhost:9000/chat";
+            //var endpoint = "ws://localhost:9000/chat";
+            var endpoint = "ws://10.235.244.137:9000/chat";
             //var endpoint = "wss://chat-langchain-stoeckl.onrender.com/chat";
             var ws = null;
             try {
@@ -99,73 +100,73 @@
             }
 
             //if (ws && ws.readyState === WebSocket.OPEN) {
-                // Receive message from server word by word. Display the words as they are received.
-                ws.onmessage = function (event) {
-                    var messages = document.getElementById('messages');
-                    var data = JSON.parse(event.data);
-                    if (data.sender === "bot") {
+            // Receive message from server word by word. Display the words as they are received.
+            ws.onmessage = function (event) {
+                var messages = document.getElementById('messages');
+                var data = JSON.parse(event.data);
+                if (data.sender === "bot") {
 
-                        if (data.type === "start") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Computing answer...";
-                            var div = document.createElement('div');
-                            div.className = 'server-message';
-                            var p = document.createElement('p');
-                            p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
-                            div.appendChild(p);
-                            messages.appendChild(div);
-                        } else if (data.type === "stream") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Chatbot is typing...";
-                            var p = messages.lastChild.lastChild;
-
-
-                            if (data.message === "\n") {
-                                p.innerHTML += "<br>";
-                            } else {
-                                p.innerHTML += data.message;
-                            }
-                        } else if (data.type === "info") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = data.message;
-
-                        } else if (data.type === "end") {
-                            //var p = messages.lastChild.lastChild;
-                            //p.innerHTML = converter.makeHtml(p.innerHTML)
-
-
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
-                            var button = document.getElementById('send');
-                            button.innerHTML = "Send";
-                            button.disabled = false;
-
-                            replaceLinksServerMessages();
-
-
-                        } else if (data.type === "error") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
-                            var button = document.getElementById('send');
-                            button.innerHTML = "Send";
-                            button.disabled = false;
-                            var p = messages.lastChild.lastChild;
-                            p.innerHTML += data.message;
-                        }
-                    } else {
+                    if (data.type === "start") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Computing answer...";
                         var div = document.createElement('div');
-                        div.className = 'client-message';
+                        div.className = 'server-message';
                         var p = document.createElement('p');
-                        p.innerHTML = "<strong>" + "You: " + "</strong>";
-                        p.innerHTML += data.message;
+                        p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
                         div.appendChild(p);
                         messages.appendChild(div);
-                    }
-                    // Scroll to the bottom of the chat
-                    messages.scrollTop = messages.scrollHeight;
+                    } else if (data.type === "stream") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Chatbot is typing...";
+                        var p = messages.lastChild.lastChild;
 
-                    ///*
-                };
+
+                        if (data.message === "\n") {
+                            p.innerHTML += "<br>";
+                        } else {
+                            p.innerHTML += data.message;
+                        }
+                    } else if (data.type === "info") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = data.message;
+
+                    } else if (data.type === "end") {
+                        //var p = messages.lastChild.lastChild;
+                        //p.innerHTML = converter.makeHtml(p.innerHTML)
+
+
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                        var button = document.getElementById('send');
+                        button.innerHTML = "Send";
+                        button.disabled = false;
+
+                        replaceLinksServerMessages();
+
+
+                    } else if (data.type === "error") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                        var button = document.getElementById('send');
+                        button.innerHTML = "Send";
+                        button.disabled = false;
+                        var p = messages.lastChild.lastChild;
+                        p.innerHTML += data.message;
+                    }
+                } else {
+                    var div = document.createElement('div');
+                    div.className = 'client-message';
+                    var p = document.createElement('p');
+                    p.innerHTML = "<strong>" + "You: " + "</strong>";
+                    p.innerHTML += data.message;
+                    div.appendChild(p);
+                    messages.appendChild(div);
+                }
+                // Scroll to the bottom of the chat
+                messages.scrollTop = messages.scrollHeight;
+
+                ///*
+            };
             //}
 
             function computeHash(txt) {
@@ -201,7 +202,8 @@
                                     const url = new URL(videoLinks[j]);
                                     // try to get the time parameter
                                     // if it is not set, the video will start at the beginning
-                                    const time = url.searchParams.get("time") || 0;
+                                    const time = url.searchParams.get("time").split(',')[0] || 0;
+                                    console.log("time: " + time);
 
 
                                     // compute a hash for the video link
@@ -292,7 +294,7 @@
                     href="https://www.stoekl.ai">stoeckl.ai</a>. </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
-        
+
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
                 <input type="text" class="form-control" placeholder="Write your question" id="messageText">

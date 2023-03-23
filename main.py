@@ -13,7 +13,6 @@ from fastapi.staticfiles import StaticFiles
 from langchain.vectorstores import VectorStore, Pinecone
 
 from callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
-from ingest import ingest_docs
 from query_data import get_chain
 from schemas import ChatResponse
 
@@ -21,6 +20,8 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 vectorstore: Optional[VectorStore] = None
+
+index_name = "redbullchat"
 
 import os
 os.environ["LANGCHAIN_HANDLER"] = "langchain"	
@@ -40,7 +41,7 @@ async def startup_event():
         environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
-    vectorstore = Pinecone.from_existing_index(index_name="stoecklchat", embedding=OpenAIEmbeddings())
+    vectorstore = Pinecone.from_existing_index(index_name=index_name, embedding=OpenAIEmbeddings())
 
 
 @app.get("/")

@@ -274,6 +274,8 @@
                     var urlPattern = new RegExp("(https?://www\\.[^\\s]+)", "gi");
                     p.innerHTML = p.textContent.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 
+                    // Todo: create a link and add it to newElements
+
 
                     // find links that start with video://
                     var videoPattern = new RegExp("(video://[^\\s,]+)", "gi");
@@ -318,7 +320,14 @@
                                     video.currentTime = time;
                                     video.onplay = null;
                                 };
+
+                                // if the video loading fails, remove the video element
+                                video.onerror = function () {
+                                    console.log(`video loading for ${video.src} failed`);
+                                    video.remove();
+                                };
                             }
+                            // Todo: check if video exists and if not remove the video element
                             //p.appendChild(video)
                             newElements.push(video);
                         }
@@ -338,6 +347,8 @@
                             console.log("hash: " + hash);
                             // replace the image link with an image tag
                             p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
+
+                            // Todo: create an image element and add it to newElements
                         }
                     }
 

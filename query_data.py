@@ -52,6 +52,8 @@ Documents:
 
 Answer in Markdown:"""
 
+
+
 QA_PROMPT = PromptTemplate(
     template=prompt_template, input_variables=["context", "question"]
 )
@@ -73,6 +75,7 @@ def get_chain(
         stream_manager.add_handler(tracer)
 
     question_gen_llm = OpenAI(
+        model_name='gpt-3.5-turbo',
         temperature=0,
         verbose=True,
         callback_manager=question_manager,

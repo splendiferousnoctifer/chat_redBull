@@ -72,21 +72,21 @@
             margin-top: 10px;
         }
 
-        .chatbot-img{
+        .chatbot-img {
             height: 50px;
         }
 
-        .client-img{
+        .client-img {
             height: 40px;
             margin: 10px 5px 0;
         }
 
-        .server-message-container{
+        .server-message-container {
             display: flex;
             flex-direction: row;
         }
 
-        .client-message-container{
+        .client-message-container {
             display: flex;
             justify-content: flex-end;
         }
@@ -113,6 +113,7 @@
         }
 
         @keyframes bounce {
+
             0%,
             75%,
             100% {
@@ -121,7 +122,7 @@
                 -o-transform: translateY(0);
                 transform: translateY(0)
             }
-            
+
             25% {
                 -webkit-transform: translateY(-5px);
                 -ms-transform: translateY(-5px);
@@ -129,7 +130,6 @@
                 transform: translateY(-5px)
             }
         }
-        
     </style>
 
     <script>
@@ -170,44 +170,46 @@
                 var data = JSON.parse(event.data);
                 if (data.sender === "bot") {
 
-                        if (data.type === "start") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Computing answer...";
-                            var container = document.createElement('div');
-                    container.className = 'server-message-container';
-                    var img = document.createElement('img');
-                    img.className = 'chatbot-img';
-                    img.src = "{{ url_for('static', path='/bull.png') }}";
-                    img.style.width = "70px";
-                    var div = document.createElement('div');
-                            div.className = 'server-message';
-                            var dots_container = document.createElement('div');
-                            dots_container.className = "jumping-dots-loader";
-                    dots_container.innerHTML = "<span></span><span></span><span></span>";
-                   
-                    div.appendChild(dots_container);
-                    container.appendChild(img)
-                            container.appendChild(div)
-                            messages.appendChild(container);
-                        } else if (data.type === "stream") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Chatbot is typing...";
-                            var p = messages.lastChild.lastChild;
-                    removeItem = document.getElementsByClassName("jumping-dots-loader");
-                    removeItem[0]?.remove();
-                            if (data.message === "\n") {
-                                p.innerHTML += "<br>";
-                            } else {
-                                p.innerHTML += data.message;
-                            }
-                        } else if (data.type === "info") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = data.message;
+                    if (data.type === "start") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Computing answer...";
+                        var container = document.createElement('div');
+                        container.className = 'server-message-container';
+                        var img = document.createElement('img');
+                        img.className = 'chatbot-img';
+                        img.src = "{{ url_for('static', path='/bull.png') }}";
+                        img.style.width = "70px";
+                        var div = document.createElement('div');
+                        div.className = 'server-message';
+                        var dots_container = document.createElement('div');
+                        dots_container.className = "jumping-dots-loader";
+                        dots_container.innerHTML = "<span></span><span></span><span></span>";
+
+                        div.appendChild(dots_container);
+                        container.appendChild(img)
+                        container.appendChild(div)
+                        messages.appendChild(container);
+                    } else if (data.type === "stream") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Chatbot is typing...";
+                        var p = messages.lastChild.lastChild;
+                        removeItem = document.getElementsByClassName("jumping-dots-loader");
+                        removeItem[0]?.remove();
+                        if (data.message === "\n") {
+                            p.innerHTML += "<br>";
+                        } else {
+                            p.innerHTML += data.message;
+                        }
+                    } else if (data.type === "info") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = data.message;
 
                     } else if (data.type === "end") {
                         //var p = messages.lastChild.lastChild;
                         //p.innerHTML = converter.makeHtml(p.innerHTML)
 
+                        const p = messages.lastChild.lastChild;
+                        replaceLinksServerMessages(p);
 
                         var header = document.getElementById('header');
                         header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
@@ -215,36 +217,36 @@
                         button.innerHTML = "Send";
                         button.disabled = false;
 
-                        replaceLinksServerMessages();
 
 
-                        } else if (data.type === "error") {
-                            var header = document.getElementById('header');
-                            header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
-                            var button = document.getElementById('send');
-                            button.innerHTML = "Send";
-                            button.disabled = false;
-                            var p = messages.lastChild.lastChild;
-                            p.innerHTML += data.message;
-                        }
-                    } else {
-                        var container = document.createElement('div');
-                container.className = 'client-message-container';
-                var img = document.createElement('img');
-                img.className = 'client-img';
-                img.src = "{{ url_for('static', path='/client.png') }}";
-                img.style.width = "55px";
-                var div = document.createElement('div');
-                        div.className = 'client-message';
-                        var p = document.createElement('p');
-                                p.innerHTML += data.message;
-                        div.appendChild(p);
-                        container.appendChild(div)
-                container.appendChild(img)
-                messages.appendChild(container);
+
+                    } else if (data.type === "error") {
+                        var header = document.getElementById('header');
+                        header.innerHTML = "Ask a question about <a href=\"https://www.stoekl.ai\">stoeckl.ai</a>.";
+                        var button = document.getElementById('send');
+                        button.innerHTML = "Send";
+                        button.disabled = false;
+                        var p = messages.lastChild.lastChild;
+                        p.innerHTML += data.message;
                     }
-                    // Scroll to the bottom of the chat
-                    messages.scrollTop = messages.scrollHeight;
+                } else {
+                    var container = document.createElement('div');
+                    container.className = 'client-message-container';
+                    var img = document.createElement('img');
+                    img.className = 'client-img';
+                    img.src = "{{ url_for('static', path='/client.png') }}";
+                    img.style.width = "55px";
+                    var div = document.createElement('div');
+                    div.className = 'client-message';
+                    var p = document.createElement('p');
+                    p.innerHTML += data.message;
+                    div.appendChild(p);
+                    container.appendChild(div)
+                    container.appendChild(img)
+                    messages.appendChild(container);
+                }
+                // Scroll to the bottom of the chat
+                messages.scrollTop = messages.scrollHeight;
 
                 ///*
             };
@@ -257,85 +259,100 @@
                 }, 0);
             }
 
-            function replaceLinksServerMessages() {
-                var serverMessages = document.querySelectorAll(".server-message");
-                if (serverMessages) {
-                    for (var i = 0; i < serverMessages.length; i++) {
-                        var p = serverMessages[i].querySelector("p");
-                        if (p) {
-                            // Log the existing text content
-
-                            // Replace regular URLs with links
-                            // regex for http or https  URLs
-                            var urlPattern = new RegExp("(https?://www\\.[^\\s]+)", "gi");
-                            p.innerHTML = p.textContent.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-
-                            // find links that start with video://
-                            var videoPattern = new RegExp("(video://[^\\s]+)", "gi");
-                            // find all positions of the video links
-                            var videoLinks = p.textContent.match(videoPattern);
-                            // iterate over them
-                            if (videoLinks) {
-                                for (var j = 0; j < 1; j++) {
-                                    console.log("found video link: " + videoLinks[j])
-
-                                    // parse the query string
-                                    const url = new URL(videoLinks[j]);
-                                    // try to get the time parameter
-                                    // if it is not set, the video will start at the beginning
-                                    const time = url.searchParams.get("time").split(',')[0] || 0;
-                                    console.log("time: " + time);
+            function replaceLinksServerMessages(p) {
 
 
-                                    // compute a hash for the video link
-                                    const hash = computeHash(videoLinks[j]);
-                                    console.log("hash: " + hash);
-                                    // replace the video link with a video tag
-                                    p.innerHTML = p.textContent.replace(videoLinks[j], `<video id="${hash}" width="*" controls autoplay><source src="${videoLinks[j].replace("video://", "https://")}" type="video/mp4"></video>`);
 
-                                    {
-                                        const video = document.getElementById(hash);
-                                        video.onplay = function () {
-                                            console.log("video playing");
-                                            video.currentTime = time;
-                                        };
-                                    }
-                                }
+                if (p) {
+                    // Log the existing text content
+
+                    // new elements 
+                    var newElements = [];
+
+                    // Replace regular URLs with links
+                    // regex for http or https  URLs
+                    var urlPattern = new RegExp("(https?://www\\.[^\\s]+)", "gi");
+                    p.innerHTML = p.textContent.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+
+
+                    // find links that start with video://
+                    var videoPattern = new RegExp("(video://[^\\s,]+)", "gi");
+                    // find all positions of the video links
+                    var videoLinks = p.textContent.match(videoPattern);
+                    // iterate over them
+                    if (videoLinks) {
+                        for (var j = 0; j < videoLinks.length; j++) {
+                            console.log("found video link: " + videoLinks[j])
+
+                            // parse the query string
+                            const url = new URL(videoLinks[j]);
+                            // try to get the time parameter
+                            // if it is not set, the video will start at the beginning
+                            let time = 0;
+                            try {
+                                time = url.searchParams.get("time") || 0;
+                            } catch (e) {
+                                console.log("no time parameter found");
                             }
+                            console.log("time: " + time);
 
-                            // find links that start with image://
-                            var imagePattern = new RegExp("(image://[^\\s]+)", "gi");
-                            // find all positions of the image links
-                            var imageLinks = p.textContent.match(imagePattern);
-                            // iterate over them
-                            if (imageLinks) {
-                                for (var j = 0; j < 1; j++) {
-                                    console.log("found image link: " + imageLinks[j])
 
-                                    // compute a hash for the image link
-                                    const hash = computeHash(imageLinks[j]);
-                                    console.log("hash: " + hash);
-                                    // replace the image link with an image tag
-                                    p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
-                                }
+                            // compute a hash for the video link
+                            const hash = computeHash(videoLinks[j]);
+                            console.log("hash: " + hash);
+                            // replace the video link with a video tag
+                            //p.innerHTML = p.textContent.replace(videoLinks[j], `<video id="${hash}" width="*" controls autoplay><source src="${videoLinks[j].replace("video://", "https://")}" type="video/mp4"></video>`);
+
+
+                            // create a video element
+                            const video = document.createElement("video");
+                            video.id = hash;
+                            //video.width = "*";
+                            video.controls = true;
+                            video.autoplay = true;
+                            // create a source element
+                            video.src = videoLinks[j].replace("video://", "https://")
+                            {
+                                video.onplay = function () {
+                                    console.log("video playing");
+                                    video.currentTime = time;
+                                    video.onplay = null;
+                                };
                             }
-
-                            /*
-                            var sourcesIndex = p.textContent.indexOf("SOURCES:");
-                            if (sourcesIndex > -1) {
-                                p.innerHTML = p.innerHTML.slice(0, sourcesIndex) + "<br><br>" + p.innerHTML.slice(sourcesIndex);
-                            }
-                            */
-
-                            // p.innerHTML = p.innerHTML.replace('index.html', '');
-
-                            // Log the modified text content
+                            //p.appendChild(video)
+                            newElements.push(video);
                         }
                     }
+
+                    // find links that start with image://
+                    var imagePattern = new RegExp("(image://[^\\s]+)", "gi");
+                    // find all positions of the image links
+                    var imageLinks = p.textContent.match(imagePattern);
+                    // iterate over them
+                    if (imageLinks) {
+                        for (var j = 0; j < imageLinks.length; j++) {
+                            console.log("found image link: " + imageLinks[j])
+
+                            // compute a hash for the image link
+                            const hash = computeHash(imageLinks[j]);
+                            console.log("hash: " + hash);
+                            // replace the image link with an image tag
+                            p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
+                        }
+                    }
+
+                    // cut the part of the text starting with  "SOURCES:"
+                    p.innerHTML = p.textContent.split("SOURCES:")[0];
+
+                    // Add the new elements
+                    for (var j = 0; j < newElements.length; j++) {
+                        p.appendChild(newElements[j]);
+                    }
                 }
-                //*/
             }
-            replaceLinksServerMessages();
+
+
+            // replaceLinksServerMessages();
 
 
 

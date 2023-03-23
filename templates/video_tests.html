@@ -218,6 +218,23 @@
                                 }
                             }
 
+                            // find links that start with image://
+                            var imagePattern = new RegExp("(image://[^\\s]+)", "gi");
+                            // find all positions of the image links
+                            var imageLinks = p.textContent.match(imagePattern);
+                            // iterate over them
+                            if (imageLinks) {
+                                for (var j = 0; j < imageLinks.length; j++) {
+                                    console.log("found image link: " + imageLinks[j])
+
+                                    // compute a hash for the image link
+                                    const hash = computeHash(imageLinks[j]);
+                                    console.log("hash: " + hash);
+                                    // replace the image link with an image tag
+                                    p.innerHTML = p.textContent.replace(imageLinks[j], `<img id="${hash}" src="${imageLinks[j].replace("image://", "https://")}" width="*" />`);
+                                }
+                            }
+
                             /*
                             var sourcesIndex = p.textContent.indexOf("SOURCES:");
                             if (sourcesIndex > -1) {
@@ -298,15 +315,16 @@
                     <p><strong>Chatbot: </strong> Yes, sure. Enjoy this video:
                         video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825
                     </p>
-                    <!--inline video player-->
-                    <!--
-                    <video width="100%" controls autoplay id="testvideo">
-                        <source
-                            src="https://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825" "
-                            type=" video/mp4" />
-                        Your browser does not support the video tag.
-                    -->
                 </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Do you have a picture of her?</p>
+                </div>
+                <div class="server-message">
+                    <p><strong>Chatbot: </strong> Yes, of course!
+                        image://img.liiift.io/v1/RBCP/FO-2DVKWF5CE1111.jpg/a:h/im/FO-2DVKWF5CE1111_image_proxy_verylarge.jpg?ht=exp=1708081875+hmac=78a5605b229ec7303691e031bfc6f726
+                    </p>
+                </div>
+
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
                 <input type="text" class="form-control" placeholder="Write your question" id="messageText">

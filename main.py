@@ -40,7 +40,7 @@ async def startup_event():
         environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
-    vectorstore = Pinecone.from_existing_index(index_name="voestchat", embedding=OpenAIEmbeddings())
+    vectorstore = Pinecone.from_existing_index(index_name="stoecklchat", embedding=OpenAIEmbeddings())
 
 
 @app.get("/")

@@ -18,7 +18,7 @@ def ingest_docs():
         environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
-    index_name = "steocklchat"
+    index_name = "stoecklchat"
 
     """Get documents from web pages."""
     

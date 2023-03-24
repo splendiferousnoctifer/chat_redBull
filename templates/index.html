@@ -273,7 +273,9 @@
 
                     // Replace regular URLs with links
                     // regex for http or https  URLs
-                    var urlPattern = new RegExp("(https?://www\\.[^\\s,]+)", "gi");
+                    // from regex101
+                    // (https?:\/\/www.(?:(?!(https?|video|image|,| )).)*)
+                    var urlPattern = new RegExp("(https?://www\\.(?:(?!(https?:|video:|image:|,|\\s)).)*)", "gi");
                     const links = p.textContent.match(urlPattern);
 
                     // create a link and add it to newElements
@@ -290,7 +292,7 @@
 
 
                     // find links that start with video://
-                    var videoPattern = new RegExp("(video://[^\\s,]+)", "gi");
+                    var videoPattern = new RegExp("(video://(?:(?!(https?:|video:|image:|,|\\s)).)*)", "gi");
                     // find all positions of the video links
                     var videoLinks = p.textContent.match(videoPattern);
                     // iterate over them
@@ -345,7 +347,7 @@
                     }
 
                     // find links that start with image://
-                    var imagePattern = new RegExp("(image://[^\\s]+)", "gi");
+                    var imagePattern = new RegExp("(image://(?:(?!(https?:|video:|image:|,|\\s)).)*)", "gi");
                     // find all positions of the image links
                     var imageLinks = p.textContent.match(imagePattern);
                     // iterate over them
@@ -452,6 +454,61 @@
                     href="https://www.redbullcontentpool.com/">RedBull Content Pool</a>. </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
+                <!-- some static tests -->
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <p>
+                            HARD CASE: Lindsey Vonn stated that skiing on the Streif was one of her greatest mental
+                            challenges and that she was proud of the moment for the rest of her life. She dedicated the
+                            ski run to her late mother, saying that her mother always believed in her more than she
+                            believed in herself and that she knew her mother was watching and helping her fulfill her
+                            dream.SOURCES:https://www.redbullcontentpool.com/international/CP-S-16285https://www.redbullcontentpool.com/international/CP-S-6511video://cs.liiift.io/v1/RBCP/pd/2/DV/EP/HW/QE/11/14/FO-2DVEPHWQE1114.mp4/a:h/FO-2DVEPHWQE1114_proxy_hd_720.mp4?ht=exp=1710724463+hmac=d9bf146aff27d98f6bed2b87dda30ee5&time=285
+                        </p>
+                    </div>
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Hello I am a fan of Lindsey Vonn.</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <p><strong>Chatbot: </strong>Hello Lindsey's fan ;). She is a former professional skier. Here is
+                            some content about her. SOURCES:
+                            https://www.redbull.com/int-en/athlete/lindsey-vonn,https://www.redbull.com/int-en/mind-set-win-podcast-lindsey-vonn
+                        </p>
+                    </div>
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Do you have an interview with her about the downhill race at Streif?</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <strong>Chatbot: </strong> Yes, sure. Enjoy these videos:SOURCES:
+                        video://cs.liiift.io/v1/RBCP/pd/2/DV/EP/HW/QE/11/14/FO-2DVEPHWQE1114.mp4/a:h/FO-2DVEPHWQE1114_proxy_hd_720.mp4?ht=exp=1710724463+hmac=d9bf146aff27d98f6bed2b87dda30ee5&time=441,
+                        video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825&time=7825,
+                        video://cs.liiift.io/v1/RBCP/' 
+                    </div> <!-- last one is broken -->
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Do you have a picture of her?</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <p><strong>Chatbot: </strong> Yes, of
+                            course!SOURCES:image://img.liiift.io/v1/RBCP/FO-2DVKWF5CE1111.jpg/a:h/im/FO-2DVKWF5CE1111_image_proxy_verylarge.jpg?ht=exp=1708081875+hmac=78a5605b229ec7303691e031bfc6f726
+                        </p>
+                    </div>
+                </div>
+                <div class="client-message">
+                    <p><strong>You: </strong>Next is a mixture of things?</p>
+                </div>
+                <div class="server-message-container">
+                    <div class="server-message">
+                        <strong>Chatbot: </strong> Yes, sure. Enjoy these videos:SOURCES:
+                        image://img.liiift.io/v1/RBCP/FO-2EAY6MPAA1511.jpg/a:h/im/FO-2EAY6MPAA1511_image_proxy_verylarge.jpg?ht=exp=1710706393+hmac=56a8a8ec3e884ac285e1e311ffe18151
+                        video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825&time=7825,
+                        video://cs.liiift.io/v1/RBCP/, https://www.redbull.com/int-en/athlete/lindsey-vonn,
+                    </div> <!-- second-last one is broken -->
+                </div>
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
                 <textarea rows="3" class="form-control" placeholder="Write your question" id="messageText"></textarea>

@@ -11,8 +11,48 @@
     <script type="text/javascript" src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 
     <style>
+        .submit-button{
+            max-height: 44px;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body{
+            background-image: url("https://img.liiift.io/v1/RBCP/FO-2ED527F1T1511.jpg/a:h/im:i:c_fill,g_center,w_1200,h_800,q_70/FO-2ED527F1T1511_image_proxy_verylarge.jpg?ht=exp=1710917555+hmac=70831a4bfbef6f23c6b1e585d8e5e014");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .textarea {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            resize: both;
+            min-height: 40px;
+            line-height: 20px;
+            background-color: white;
+            width: 80%;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        .textarea[contenteditable]:empty::before {
+            content: "Write your question";
+            color: gray;
+        }
+
         a {
             text-decoration: underline;
+        }
+
+        .logo{
+            max-width: 80%;
+            height: auto;
+            margin: auto;
         }
 
         .chat-body {
@@ -20,8 +60,14 @@
             margin: 50px auto;
         }
 
+        @media screen and (max-width:720px) {
+            .chat-body { 
+                width: 100%; 
+            }
+        }
+
         .card-body {
-            background-color: #333;
+            background-color: rgba(0, 42, 85, .8);
             color: #fff;
             border-radius: 10px;
         }
@@ -48,15 +94,6 @@
         .form-inline {
             display: flex;
             justify-content: space-between;
-        }
-
-        .form-control {
-            width: 80%;
-            color: #000000;
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            margin-right: 10px;
         }
 
         #send {
@@ -129,6 +166,10 @@
                 transform: translateY(-5px)
             }
         }
+        .footer-text{
+            text-align: center;
+            color:white;
+        }
     </style>
 
     <script>
@@ -178,7 +219,6 @@
                         var img = document.createElement('img');
                         img.className = 'chatbot-img';
                         img.src = "{{ url_for('static', path='/bull.png') }}";
-                        img.style.width = "70px";
                         var div = document.createElement('div');
                         div.className = 'server-message';
                         var dots_container = document.createElement('div');
@@ -235,7 +275,6 @@
                     var img = document.createElement('img');
                     img.className = 'client-img';
                     img.src = "{{ url_for('static', path='/client.png') }}";
-                    img.style.width = "55px";
                     var div = document.createElement('div');
                     div.className = 'client-message';
                     var p = document.createElement('p');
@@ -420,7 +459,7 @@
             // Send message to server
             function sendMessage(event) {
                 event.preventDefault();
-                var message = document.getElementById('messageText').value;
+                var message = document.getElementById('messageText').innerHTML;
                 if (message === "") {
                     return;
                 }
@@ -431,6 +470,7 @@
                 var button = document.getElementById('send');
                 button.innerHTML = "Loading...";
                 button.disabled = true;
+                document.getElementById("messageText").innerHTML = "";
             }
 
             // Send message when the user clicks the send button
@@ -439,30 +479,37 @@
             button.addEventListener("onsubmit", sendMessage);
 
 
-
+            document.getElementById("messageText").addEventListener("keydown", function (event) {
+                if (event.which === 13 && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessage(event);
+                }
+            });
         }
     </script>
 </head>
 
-<body class="bg-white">
-    <div class="chat-body card">
-        <div class="card-body p-5">
-            <img class="logo" src="{{ url_for('static', path='/logo.png') }}">
-            <p class="card-text text-center text-sm" id="header"> Ask a question about <a
-                    href="https://www.redbullcontentpool.com/">RedBull Content Pool</a>. </p>
-            <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
-            <div id="messages" class="overflow-auto" style="max-height: 500px;">
+<body>
+   
+        <div class="chat-body card">
+            <div class="card-body p-5">
+                <img class="logo" src="{{ url_for('static', path='/logo.png') }}">
+                <p class="card-text text-center text-sm" id="header"> Ask a question about the <a
+                        href="https://www.redbullcontentpool.com/">RedBull Content</a>. </p>
+                <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
+                <div id="messages" class="overflow-auto" style="max-height: 400px;">
+                </div>
+                <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
+                    <span class="textarea" role="textbox" id="messageText" contenteditable></span>
+                    <button id="send" type="submit" class="btn btn-primary submit-button">Send</button>
+                </form>
             </div>
-            <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
-                <textarea rows="3" class="form-control" placeholder="Write your question" id="messageText"></textarea>
-                <button id="send" type="submit" class="btn btn-primary">Send</button>
-            </form>
         </div>
-    </div>
+    
 </body>
 <footer class="footer-text">
     <p>
-        <center><span class="grey-text">Made by FH-Hagenberg students at the RedBull Hackit</center>
+        Made by FH-Hagenberg students at the RedBull Hackit
     </p>
 </footer>
 

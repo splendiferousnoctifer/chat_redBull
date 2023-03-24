@@ -180,6 +180,8 @@
     <script>
         // execute when the document is fully loaded+
         window.onload = function () {
+            let bg_iterator = 0;
+            change_background();
             console.log("document loaded");
             var endpoint = "ws://localhost:9000/chat";
             //var endpoint = "ws://10.235.244.137:9000/chat";
@@ -530,6 +532,18 @@
                     sendMessage(event);
                 }
             });
+
+            function change_background() {
+                let bg_images = ['https://img.liiift.io/v1/RBCP/FO-2EGC9YGU61512.jpg/a:h/im:i:c_fill,g_center,w_1200,h_800,q_70/FO-2EGC9YGU61512_image_proxy_verylarge.jpg?ht=exp=1711039233+hmac=d2836f7e1815540021f7257dba1d1f5c', 'https://img.liiift.io/v1/RBCP/FO-2ED527F1T1511.jpg/a:h/im:i:c_fill,g_center,w_1200,h_800,q_70/FO-2ED527F1T1511_image_proxy_verylarge.jpg?ht=exp=1710917555+hmac=70831a4bfbef6f23c6b1e585d8e5e014', 'https://img.liiift.io/v1/RBCP/FO-29G2WYJS61511.jpg/a:h/im:i:c_fill,g_center,w_1200,h_800,q_70/FO-29G2WYJS61511_image_proxy_verylarge.jpg?ht=exp=1706912815+hmac=2be251b920261f61477af1b59223f29a'];
+                document.body.style.backgroundImage = "url(" + bg_images[bg_iterator] + ")";
+                bg_iterator++;
+                if(bg_iterator > 2){
+                    bg_iterator = 0;
+                }
+                setTimeout( function () {
+                    change_background();
+                }, 10000);
+            }
         }
     </script>
 </head>

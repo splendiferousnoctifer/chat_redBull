@@ -304,6 +304,18 @@
                 }, 0);
             }
 
+
+            function checkLinkAndRemove(a) {
+                fetch(a.href).then(function (response) {
+                    if (response.status === 404) {
+                        a.remove();
+                    }
+                }).catch(function (error) {
+                    //console.log(error);
+                    a.remove();
+                });
+            }
+
             function replaceLinksServerMessages(p) {
 
 
@@ -405,8 +417,10 @@
                                 a.href = videoLinks[j].replace("video://", "https://");
                                 a.target = "_blank";
                                 // innerHTML is a link preview https://rlb.at ... only 25 characters long
-                                a.innerHTML = videoLinks[j].replace("video://", "https://").substring(0, 25) + "...";
+                                a.innerHTML = videoLinks[j].replace("video://", "https://").substring(0, 35) + "...";
                                 otherVideos.append(a);
+                                checkLinkAndRemove(a);
+
 
                             }
 
@@ -529,7 +543,7 @@
                     href="https://www.redbullcontentpool.com/">RedBull Content</a>. </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="height: 55vh;">
-                <!-- 
+                <!-- STATIC TEST CONTENT 
                 <div class="client-message">
                     <p><strong>You: </strong>Hello I am a fan of Lindsey Vonn.</p>
                 </div>
@@ -550,7 +564,7 @@
                         video://cs.liiift.io/v1/RBCP/pd/2/DV/EP/HW/QE/11/14/FO-2DVEPHWQE1114.mp4/a:h/FO-2DVEPHWQE1114_proxy_hd_720.mp4?ht=exp=1710724463+hmac=d9bf146aff27d98f6bed2b87dda30ee5&time=441,
                         video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825&time=7825,
                         video://cs.liiift.io/v1/RBCP/' 
-                    </div> 
+                    </div>
                 </div>
                 <div class="client-message">
                     <p><strong>You: </strong>Do you have a picture of her?</p>
@@ -571,8 +585,8 @@
                         image://img.liiift.io/v1/RBCP/FO-2EAY6MPAA1511.jpg/a:h/im/FO-2EAY6MPAA1511_image_proxy_verylarge.jpg?ht=exp=1710706393+hmac=56a8a8ec3e884ac285e1e311ffe18151
                         video://cs.liiift.io/v1/RBCP/pd/2/DV/ES/7Y/AP/11/14/FO-2DVES7YAP1114.mp4/a:h/FO-2DVES7YAP1114_proxy_hd_720.mp4?ht=exp=1710551153+hmac=05cc28853f1063f7acc3adaf2277e825&time=7825,
                         video://cs.liiift.io/v1/RBCP/, https://www.redbull.com/int-en/athlete/lindsey-vonn,
-                    </div> 
-                </div> -->
+                    </div>
+                </div>  -->
             </div>
             <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
                 <span class="textarea" role="textbox" id="messageText" contenteditable></span>

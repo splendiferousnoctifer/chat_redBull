@@ -101,8 +101,8 @@
         }
 
         #send {
-            background-color: #4C4CFF;
-            color: #fff;
+            background-color: #ffc423;
+            color: #002A55;
             border: none;
             border-radius: 5px;
             padding: 10px 20px;
@@ -257,7 +257,7 @@
                         replaceLinksServerMessages(p);
 
                         var header = document.getElementById('header');
-                        header.innerHTML = "Ask a question.";
+                        header.innerHTML = "Ask a question. <a href='https://www.redbullcontentpool.com/'>RedBull Content</a>.";
                         var button = document.getElementById('send');
                         button.innerHTML = "Send";
                         button.disabled = false;
@@ -267,7 +267,7 @@
 
                     } else if (data.type === "error") {
                         var header = document.getElementById('header');
-                        header.innerHTML = "Ask a question.";
+                        header.innerHTML = "Ask a question. <a href='https://www.redbullcontentpool.com/'>RedBull Content</a>.";
                         var button = document.getElementById('send');
                         button.innerHTML = "Send";
                         button.disabled = false;
@@ -497,27 +497,22 @@
 </head>
 
 <body>
-
-    <div class="chat-body card">
-        <div class="card-body p-5">
-            <img class="logo" src="{{ url_for('static', path='/logo.png') }}">
-            <p class="card-text text-center text-sm" id="header"> Ask a question about the <a
-                    href="https://www.redbullcontentpool.com/">RedBull Content</a>. </p>
-            <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
-            <div id="messages" class="overflow-auto" style="max-height: 400px;">
+   
+        <div class="chat-body card">
+            <div class="card-body p-5">
+                <img class="logo" src="{{ url_for('static', path='/logo.png') }}">
+                <p class="card-text text-center text-sm" id="header"> Ask a question about the <a
+                        href="https://www.redbullcontentpool.com/">RedBull Content</a>. </p>
+                <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
+                <div id="messages" class="overflow-auto" style="height: 55vh;">
+                </div>
+                <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
+                    <span class="textarea" role="textbox" id="messageText" contenteditable></span>
+                    <button id="send" type="submit" class="btn btn-primary submit-button">Send</button>
+                </form>
             </div>
-            <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
-                <span class="textarea" role="textbox" id="messageText" contenteditable></span>
-                <button id="send" type="submit" class="btn btn-primary submit-button">Send</button>
-            </form>
         </div>
-    </div>
-
+    
 </body>
-<footer class="footer-text">
-    <p>
-        Made by FH-Hagenberg students at the RedBull Hackit
-    </p>
-</footer>
 
 </html>

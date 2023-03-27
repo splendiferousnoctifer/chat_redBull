@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Chat Your Data</title>
+    <title>ChedBull - FH Hagenberg</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.png') }}">
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <meta property="og:description" content="A chat-GPT powered bot that answers questions.">
@@ -54,7 +54,7 @@
         }
 
         .logo {
-            max-width: 80%;
+            max-width: 60%;
             height: auto;
             margin: auto;
         }
@@ -74,6 +74,11 @@
             background-color: rgba(0, 42, 85, .8);
             color: #fff;
             border-radius: 10px;
+        }
+
+        img, video {
+            max-width: 60%;
+            height: auto;
         }
 
         .server-message {
@@ -183,8 +188,8 @@
             let bg_iterator = 0;
             change_background();
             console.log("document loaded");
-            var endpoint = "ws://localhost:9000/chat";
-            //var endpoint = "ws://10.235.244.137:9000/chat";
+            //var endpoint = "ws://localhost:9000/chat";
+            var endpoint = "ws://10.235.244.137:9000/chat";
             //var endpoint = "ws://10.149.186.69:9000/chat";
             //var endpoint = "wss://chat-langchain-stoeckl.onrender.com/chat";
             var ws = null;
@@ -542,7 +547,7 @@
                 }
                 setTimeout( function () {
                     change_background();
-                }, 10000);
+                }, 20000);
             }
         }
     </script>

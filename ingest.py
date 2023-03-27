@@ -16,14 +16,17 @@ import pinecone
 import os
 os.environ.get('OPENAI_API_KEY')
 
-def return_url(url):
+def return_url(url, video = True):
     # send HTTP request to the webpage and get the response content
     response = requests.get(url)
     html_content = response.content
 
     # parse the HTML content using BeautifulSoup
     soup = BeautifulSoup(html_content, 'html.parser')
-    pattern = r'(?<="videoUrl":")[^"]+' 
+    if video:
+        pattern = r'(?<="videoUrl":")[^"]+' 
+    else:
+        pattern = r'(?<="imageUrl":")[^"]+'
     matches = re.findall(pattern, str(soup))
 
 
@@ -36,7 +39,7 @@ def ingest_docs():
         environment="eu-west1-gcp",  # find at app.pinecone.io
     )
 
-    index_name = "redbullchat2"
+    index_name = "redbullchat-production"
 
     """Get documents from web pages."""
     
@@ -51,7 +54,7 @@ def ingest_docs():
 
     for i in range(len(raw_documents)):
         source = raw_documents[i].metadata['source']
-        pattern = r'CP-[SVT]-\d{3,6}'
+        pattern = r'CP-[SVTP]-\d{3,6}'
         matches = re.findall(pattern, source)
 
         if (matches[0][3] == 'V'):   
@@ -60,7 +63,7 @@ def ingest_docs():
             if match[0]:
                 raw_documents[i].metadata['source'] = (return_url("https://editor.redbullcontentpool.com/api/v1/assets?sort=-firstPublishedAt&include=offers.licenseOffer&format=contentExpo&filter%5bassetModel%5d=video&filter%5bchannel%5d=communication&filter%5bproductId%5d=" + str(matches[0])) + "&time=" + str(int((int(match[0][:-4])/25)))).replace('https:', 'video:')
         elif(matches[0][3] == 'P'):   
-            raw_documents[i].metadata['source'] = return_url("https://editor.redbullcontentpool.com/api/v1/assets?sort=-firstPublishedAt&include=offers.licenseOffer&format=contentExpo&filter%5bassetModel%5d=photo&filter%5bchannel%5d=communication&filter%5bproductId%5d=" + str(matches[0])).replace('https:', 'image:')
+            raw_documents[i].metadata['source'] = return_url("https://editor.redbullcontentpool.com/api/v1/assets?sort=-firstPublishedAt&include=offers.licenseOffer&format=contentExpo&filter%5bassetModel%5d=photo&filter%5bchannel%5d=communication&filter%5bproductId%5d=" + str(matches[0]), video = False).replace('https:', 'image:')
         elif(matches[0][3] == 'S'):   
             raw_documents[i].metadata['source'] = "https://www.redbullcontentpool.com/international/" + str(matches[0])
         else:

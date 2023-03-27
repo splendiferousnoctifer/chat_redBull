@@ -21,7 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 vectorstore: Optional[VectorStore] = None
 
-index_name = "redbullchat2"
+index_name = "redbullchat-production"
 
 import os
 os.environ["LANGCHAIN_HANDLER"] = "langchain"	
